@@ -1,0 +1,19 @@
+{
+    "coupons": [
+        {
+            "key": "PROMO10",
+            "value": "10",
+            "type": "Percentage"
+        },
+        {
+            "key": "PROMO20",
+            "value": "20",
+            "type": "Percentage"
+        },
+        {
+            "key": "FLAT50",
+            "value": "50",
+            "type": "Fixed"
+        }
+    ]
+}
