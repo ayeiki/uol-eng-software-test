@@ -4,6 +4,17 @@ Visão geral
 -----------
 Implementar uma feature que valida e aplica um cupom de desconto ao total do carrinho. A fonte dos cupons é o arquivo `files/cupom.json` presente no repositório — não é necessário criar CRUD ou persistência adicional.
 
+Instruções para o candidato
+--------------------------
+Antes de iniciar o exercício, faça um fork deste repositório para sua conta no GitHub. Trabalhe no fork da seguinte forma:
+- Clone o fork para sua máquina local.
+- Crie uma branch para sua implementação.
+- Implemente a solução e escreva/execute os testes localmente.
+- Faça commits e dê push da branch para o seu fork.
+- Opcional: abra um Pull Request a partir do seu fork.
+
+Não altere arquivos em NAO_ALTERAR e siga as instruções de testes descritas neste repositório.
+
 Principais requisitos
 ---------------------
 - Receber um código de cupom e aplicá‑lo sobre o total do carrinho.
