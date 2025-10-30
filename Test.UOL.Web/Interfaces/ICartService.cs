@@ -5,9 +5,10 @@ namespace Test.UOL.Web.Interfaces;
 
 public interface ICartService
 {
-    decimal CalculateTotal(Guid Id);
-    void AddItem(CartItemDto cartItem);
-    void ChangeItem(Guid Id, int quantity);
-    void DeleteItem(Guid Id, int quantity);
-    IEnumerable<CartItem> GetCartItems();
+    Guid NewCart();
+    decimal CalculateTotal(Guid IdCart);
+    void AddItem(Guid IdCart, CartItemDto cartItem);
+    void ChangeItem(Guid IdCart, Guid IdCartItem, int quantity);
+    void DeleteItem(Guid IdCart, Guid IdCartItem, int quantity);
+    IEnumerable<CartItem> GetCartItems(Guid IdCart);
 }

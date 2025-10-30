@@ -14,17 +14,22 @@ namespace Test.UOL.Web.Services.CartService
             _validator = validator;
         }
 
-        public decimal CalculateTotal(Guid Id)
+        public decimal CalculateTotal(Guid IdCart)
         {
-            var cartItems = _cartStore.GetCartItems();
+            var cartItems = GetCartItems(IdCart);
 
             var total = cartItems.Sum(item => item.Product.Price * item.Quantity);
 
             return total;
         }
 
+        public Guid NewCart()
+        {
+            return _cartStore.NewCart().Id;
+        }
 
-        public void AddItem(CartItemDto cartItem)
+
+        public void AddItem(Guid IdCart, CartItemDto cartItem)
         {
             if (cartItem == null)
                 throw new ArgumentNullException(nameof(cartItem));
@@ -38,12 +43,13 @@ namespace Test.UOL.Web.Services.CartService
                 throw new ArgumentException(errorMsg);
             }
 
-            var cartItems = _cartStore.GetCartItems();
+            var cartItems = GetCartItems(IdCart);
             var existing = cartItems.FirstOrDefault(i => i.Product.Id == cartItem.Product.ProductId);
             if (existing != null)
-                ChangeItem(existing.Id, existing.Quantity + cartItem.Quantity);
+                ChangeItem(IdCart, existing.Id, existing.Quantity + cartItem.Quantity);
             else
                 _cartStore.AddItem(
+                    IdCart,
                     new CartItem(
                         new Product(cartItem.Product.ProductId, cartItem.Product.Name, cartItem.Product.Price)
                         , cartItem.Quantity
@@ -51,18 +57,18 @@ namespace Test.UOL.Web.Services.CartService
                 );
         }
 
-        public void ChangeItem(Guid Id, int quantity)
+        public void ChangeItem(Guid IdCart, Guid IdCartItem, int quantity)
         {
-            _cartStore.ChangeItem(Id, quantity);
+            _cartStore.ChangeItem(IdCart, IdCartItem, quantity);
         }
 
-        public void DeleteItem(Guid Id, int quantity)
+        public void DeleteItem(Guid IdCart, Guid IdCartItem, int quantity)
         {
-            _cartStore.DeleteItem(Id, quantity);
+            _cartStore.DeleteItem(IdCart, IdCartItem);
         }
-        public IEnumerable<CartItem> GetCartItems()
+        public IEnumerable<CartItem> GetCartItems(Guid IdCart)
         {
-            return _cartStore.GetCartItems();
+            return _cartStore.GetCartItems(IdCart);
         }
 
     }

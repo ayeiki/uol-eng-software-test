@@ -4,6 +4,7 @@ using Test.UOL.Web.Services;
 using FluentValidation;
 using Test.UOL.Web.Stores;
 using Test.UOL.Web.Services.CartService;
+using Microsoft.AspNetCore.Http.HttpResults;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,11 +28,26 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 // Endpoints
-app.MapPost("/cart/items", ([FromBody] CartItemDto request, [FromServices] ICartService cartService) =>
+app.MapPost("/cart", ( [FromServices] ICartService cartService) =>
 {
     try
     {
-        cartService.AddItem(request);
+        var Id = cartService.NewCart();
+        return Results.Ok(Id);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("NewCart")
+.WithOpenApi();
+
+app.MapPost("/cart/{id}/items", ([FromRoute] Guid id, [FromBody] CartItemDto request, [FromServices] ICartService cartService) =>
+{
+    try
+    {
+        cartService.AddItem(id, request);
         return Results.Ok();
     }
     catch (ArgumentException ex)
@@ -42,16 +58,31 @@ app.MapPost("/cart/items", ([FromBody] CartItemDto request, [FromServices] ICart
 .WithName("AddCartItem")
 .WithOpenApi();
 
-app.MapGet("/cart/items", ([FromServices] Guid id, [FromServices] ICartService cartService) =>
+app.MapPut("/cart/{id}/items/{idItem}", ([FromRoute] Guid id, [FromRoute] Guid idItem, [FromBody] int quantity, [FromServices] ICartService cartService) =>
 {
-    var cartItems = cartService.GetCartItems();
+    try
+    {
+        cartService.ChangeItem(id, idItem, quantity);
+        return Results.Ok();
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("ChangeCartItem")
+.WithOpenApi();
+
+app.MapGet("/cart/{id}items", ([FromRoute] Guid id, [FromServices] ICartService cartService) =>
+{
+    var cartItems = cartService.GetCartItems(id);
 
     return Results.Ok(cartItems);
 })
 .WithName("GetCartItems")
 .WithOpenApi();
 
-app.MapGet("/cart/total", ([FromServices] Guid id, [FromServices] ICartService cartService) =>
+app.MapGet("/cart/{id}/total", ([FromRoute] Guid id, [FromServices] ICartService cartService) =>
 {
     var total = cartService.CalculateTotal(id);
     return Results.Ok(new { Total = total });

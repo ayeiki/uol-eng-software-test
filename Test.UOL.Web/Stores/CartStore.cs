@@ -10,31 +10,55 @@ public class CartStore : ICartStore
 
     }
 
-    public IEnumerable<CartItem> GetCartItems()
+    public IEnumerable<CartItem> GetCartItems(Guid idCart)
     {
-        return Store.CartItems;
+        var cart = Store.Carts.SingleOrDefault(_ => _.Id == idCart);
+        if (cart != null)
+            return cart.CartItems;
+        return Enumerable.Empty<CartItem>();
     }
 
-    public void AddItem(CartItem cartItem)
+    public Cart NewCart()
     {
-        Store.CartItems.Add(cartItem);
+        var cart = new Cart();
+        cart.Id = Guid.NewGuid();
+        cart.CartItems = new List<CartItem>();
+        Store.Carts.Add(cart);
+        return cart;
     }
 
-    public void ChangeItem(Guid Id, int quantity)
+    public void AddItem(Guid idCart, CartItem cartItem)
     {
-        var item = Store.CartItems.SingleOrDefault(_ => _.Id == Id);
-        if (item != null)
+        var cart = Store.Carts.SingleOrDefault(_ => _.Id == idCart);
+        if (cart != null)
         {
-            item.ChangeQuantity(quantity);
+            cart.CartItems.Add(cartItem);
         }
     }
 
-    public void DeleteItem(Guid Id, int quantity)
+    public void ChangeItem(Guid idCart, Guid idCartItem, int quantity)
     {
-        var item = Store.CartItems.SingleOrDefault(_ => _.Id == Id);
-        if (item != null)
+        var cart = Store.Carts.SingleOrDefault(_ => _.Id == idCart);
+        if (cart != null)
         {
-            Store.CartItems.Remove(item);
+            var item = cart.CartItems.SingleOrDefault(_ => _.Id == idCartItem);
+            if (item != null)
+            {
+                item.ChangeQuantity(quantity);
+            }
+        }
+    }
+
+    public void DeleteItem(Guid idCart, Guid idCartItem)
+    {
+        var cart = Store.Carts.SingleOrDefault(_ => _.Id == idCart);
+        if (cart != null)
+        {
+            var item = cart.CartItems.SingleOrDefault(_ => _.Id == idCartItem);
+            if (item != null)
+            {
+                cart.CartItems.Remove(item);
+            }
         }
     }
 }

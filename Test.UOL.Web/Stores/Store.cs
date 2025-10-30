@@ -4,6 +4,6 @@ namespace Test.UOL.Web.Stores
 {
     public static class Store
     {
-        public static readonly List<CartItem> CartItems = new List<CartItem>();
+        public static readonly List<Cart> Carts = new List<Cart>();
     }
 }

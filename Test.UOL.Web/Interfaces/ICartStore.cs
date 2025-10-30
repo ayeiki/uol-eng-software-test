@@ -4,9 +4,11 @@ namespace Test.UOL.Web.Interfaces
 {
     public interface ICartStore
     {
-        void AddItem(CartItem cartItem);
-        void ChangeItem(Guid Id, int quantity);
-        void DeleteItem(Guid Id, int quantity);
-        IEnumerable<CartItem> GetCartItems();
+        Cart NewCart();
+        IEnumerable<CartItem> GetCartItems(Guid IdCart);
+        void AddItem(Guid idCart, CartItem cartItem);
+        void ChangeItem(Guid IdCart, Guid IdCartItem, int quantity);
+        void DeleteItem(Guid IdCart, Guid IdCartItem);
+
     }
 }
