@@ -5,61 +5,31 @@ namespace Test.UOL.Web.Stores;
 
 public class CartStore : ICartStore
 {
+
+    public static readonly Dictionary<Guid, Cart> Carts = new Dictionary<Guid, Cart>();
+
     public CartStore()
     {
 
     }
 
-    public IEnumerable<CartItem> GetCartItems(Guid idCart)
+    public IEnumerable<Cart> GetCarts()
     {
-        var cart = Store.Carts.SingleOrDefault(_ => _.Id == idCart);
-        if (cart != null)
-            return cart.CartItems;
-        return Enumerable.Empty<CartItem>();
+        return [.. Carts.Values];
     }
 
-    public Cart NewCart()
+    public Cart AddCart(Cart cart)
     {
-        var cart = new Cart();
-        cart.Id = Guid.NewGuid();
-        cart.CartItems = new List<CartItem>();
-        Store.Carts.Add(cart);
+        Carts.Add(cart.Id, cart);
         return cart;
     }
-
-    public void AddItem(Guid idCart, CartItem cartItem)
+    public Cart? GetCartById(Guid id)
     {
-        var cart = Store.Carts.SingleOrDefault(_ => _.Id == idCart);
-        if (cart != null)
-        {
-            cart.CartItems.Add(cartItem);
-        }
+        return Carts.TryGetValue(id, out var cart) ? cart : null;
     }
-
-    public void ChangeItem(Guid idCart, Guid idCartItem, int quantity)
+    public bool DeleteCart(Guid id)
     {
-        var cart = Store.Carts.SingleOrDefault(_ => _.Id == idCart);
-        if (cart != null)
-        {
-            var item = cart.CartItems.SingleOrDefault(_ => _.Id == idCartItem);
-            if (item != null)
-            {
-                item.ChangeQuantity(quantity);
-            }
-        }
-    }
-
-    public void DeleteItem(Guid idCart, Guid idCartItem)
-    {
-        var cart = Store.Carts.SingleOrDefault(_ => _.Id == idCart);
-        if (cart != null)
-        {
-            var item = cart.CartItems.SingleOrDefault(_ => _.Id == idCartItem);
-            if (item != null)
-            {
-                cart.CartItems.Remove(item);
-            }
-        }
+        return Carts.Remove(id);
     }
 }
 

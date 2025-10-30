@@ -1,14 +1,22 @@
 ﻿using Test.UOL.Web.Entities;
-using Test.UOL.Web.Services;
 
 namespace Test.UOL.Web.Interfaces;
 
 public interface ICartService
 {
-    Guid NewCart();
-    decimal CalculateTotal(Guid IdCart);
-    void AddItem(Guid IdCart, CartItemDto cartItem);
-    void ChangeItem(Guid IdCart, Guid IdCartItem, int quantity);
-    void DeleteItem(Guid IdCart, Guid IdCartItem, int quantity);
-    IEnumerable<CartItem> GetCartItems(Guid IdCart);
+    /// <summary>
+    /// Creates a new <seealso cref="Cart"/>
+    /// </summary>
+    /// <returns>
+    /// The created <seealso cref="Cart"/>.
+    /// </returns>
+    Cart CreateCart();
+    /// <summary>
+    /// Gets a <seealso cref="Cart"/> by its identifier.
+    /// </summary>
+    /// <param name="id">The identifier of the <seealso cref="Cart"/>.</param>
+    /// <returns>
+    /// The <seealso cref="Cart"/> if found; otherwise, null.
+    /// </returns>
+    Cart? GetCartById(Guid id);
 }

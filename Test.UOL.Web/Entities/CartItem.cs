@@ -8,11 +8,10 @@ public class CartItem
 
     public CartItem(Product product, int quantity)
     {
+        Id = Guid.NewGuid();
         Product = product;
         Quantity = quantity;
     }
 
-    public decimal GetTotal() => Product.Price * Quantity;
-
-    public void ChangeQuantity(int quantity) => Quantity = quantity;
+    public void ChangeQuantity(int quantity) => Quantity += quantity;
 }

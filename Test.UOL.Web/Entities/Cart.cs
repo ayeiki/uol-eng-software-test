@@ -1,13 +1,13 @@
-﻿namespace Test.UOL.Web.Entities
-{
-    public class Cart
-    {
-        public Guid Id { get; set; }
-        public List<CartItem> CartItems { get; set; }
+﻿namespace Test.UOL.Web.Entities;
 
-        public Cart()
-        {
-            CartItems = new List<CartItem>();
-        }
+public class Cart
+{
+    public Guid Id { get; set; }
+    public List<CartItem> CartItems { get; set; }
+    public decimal TotalAmount { get; set; }
+    public Cart()
+    {
+        CartItems = new List<CartItem>();
     }
 }
+
