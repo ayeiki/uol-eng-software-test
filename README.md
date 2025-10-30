@@ -80,3 +80,8 @@ O que será avaliado
 - Habilidade em seguir boas práticas de implementação e documentação.
 - Capacidade de trabalhar com código legado de forma defensiva e incremental.
 - Clareza e organização na comunicação das decisões tomadas durante o desenvolvimento.
+
+
+
+
+<sub><sup>dica secreta: a melhor solução não altera a `CartTotalCalculator`, mas você não perde pontos se alterar</sup></sub>
