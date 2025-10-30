@@ -1,6 +1,0 @@
-@Test.UOL.Web_HostAddress = http://localhost:5015
-
-GET {{Test.UOL.Web_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

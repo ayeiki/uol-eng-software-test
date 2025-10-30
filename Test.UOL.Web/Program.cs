@@ -1,10 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Test.UOL.Web.Entities;
 using Test.UOL.Web.Interfaces;
 using Test.UOL.Web.Services;
-using FluentValidation;
 using Test.UOL.Web.Stores;
-using Test.UOL.Web.Services.CartService;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,8 +11,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<ICartStore, CartStore>();
-builder.Services.AddSingleton<IValidator<CartItemDto>, CartServiceValidator>();
 builder.Services.AddSingleton<ICartService, CartService>();
+builder.Services.AddSingleton<ICartTotalCalculator, CartTotalCalculator>();
 
 
 var app = builder.Build();
@@ -27,27 +25,44 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-// Endpoints
-app.MapPost("/cart", ( [FromServices] ICartService cartService) =>
+
+var group = app.MapGroup("cart").WithTags("Cart").WithOpenApi();
+group.MapPost("", ([FromServices] ICartService cartService) =>
 {
     try
     {
-        var Id = cartService.NewCart();
-        return Results.Ok(Id);
+        var cart = cartService.CreateCart();
+        return Results.CreatedAtRoute("GetCart", new { id = cart.Id }, cart);
     }
     catch (ArgumentException ex)
     {
         return Results.BadRequest(new { Error = ex.Message });
     }
 })
-.WithName("NewCart")
-.WithOpenApi();
+.WithName("CreateCart")
+.Produces<Cart>(StatusCodes.Status201Created)  
+.Produces(StatusCodes.Status400BadRequest);    
 
-app.MapPost("/cart/{id}/items", ([FromRoute] Guid id, [FromBody] CartItemDto request, [FromServices] ICartService cartService) =>
+group.MapGet("{id:guid}", ([FromRoute] Guid id, [FromServices] ICartService cartService) =>
+{
+    var cart = cartService.GetCartById(id);
+    return Results.Ok(cart);
+})
+.WithName("GetCart")
+.Produces<Cart>(StatusCodes.Status200OK)  
+.Produces(StatusCodes.Status400BadRequest);
+
+
+
+
+var itemGroup = app.MapGroup("cart/{id:guid}/items").WithTags("CartItem").WithOpenApi();
+
+
+itemGroup.MapPost("", ([FromRoute] Guid id, [FromBody] CartItem request, [FromServices] ICartItemService cartItemService) =>
 {
     try
     {
-        cartService.AddItem(id, request);
+        cartItemService.PutItemInCart(id, request);
         return Results.Ok();
     }
     catch (ArgumentException ex)
@@ -56,13 +71,14 @@ app.MapPost("/cart/{id}/items", ([FromRoute] Guid id, [FromBody] CartItemDto req
     }
 })
 .WithName("AddCartItem")
-.WithOpenApi();
+.Produces(StatusCodes.Status200OK)  
+.Produces(StatusCodes.Status400BadRequest);
 
-app.MapPut("/cart/{id}/items/{idItem}", ([FromRoute] Guid id, [FromRoute] Guid idItem, [FromBody] int quantity, [FromServices] ICartService cartService) =>
+itemGroup.MapDelete("{idItem:guid}", ([FromRoute] Guid id, [FromRoute] Guid idItem, [FromServices] ICartItemService cartItemService) =>
 {
     try
     {
-        cartService.ChangeItem(id, idItem, quantity);
+        cartItemService.DeleteItem(id, idItem);
         return Results.Ok();
     }
     catch (ArgumentException ex)
@@ -71,23 +87,18 @@ app.MapPut("/cart/{id}/items/{idItem}", ([FromRoute] Guid id, [FromRoute] Guid i
     }
 })
 .WithName("ChangeCartItem")
-.WithOpenApi();
+.Produces(StatusCodes.Status200OK)  
+.Produces(StatusCodes.Status400BadRequest);
 
-app.MapGet("/cart/{id}items", ([FromRoute] Guid id, [FromServices] ICartService cartService) =>
+
+itemGroup.MapGet("", ([FromRoute] Guid id, [FromServices] ICartItemService cartItemService) =>
 {
-    var cartItems = cartService.GetCartItems(id);
-
+    var cartItems = cartItemService.GetCartItems(id);
     return Results.Ok(cartItems);
 })
 .WithName("GetCartItems")
-.WithOpenApi();
+.Produces<IEnumerable<CartItem>>(StatusCodes.Status200OK)  
+.Produces(StatusCodes.Status400BadRequest);
 
-app.MapGet("/cart/{id}/total", ([FromRoute] Guid id, [FromServices] ICartService cartService) =>
-{
-    var total = cartService.CalculateTotal(id);
-    return Results.Ok(new { Total = total });
-})
-.WithName("GetCartTotal")
-.WithOpenApi();
 
 app.Run();
