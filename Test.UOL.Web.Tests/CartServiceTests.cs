@@ -3,6 +3,7 @@ using Test.UOL.Web.Entities;
 using Test.UOL.Web.Interfaces;
 using Test.UOL.Web.Services;
 using NUnit.Framework;
+using Microsoft.Extensions.Logging;
 
 namespace Test.UOL.Web.Tests
 {

@@ -7,6 +7,8 @@ using Test.UOL.Web.Services;
 using Bogus;
 using NUnit.Framework;
 using System.Linq;
+using Microsoft.Extensions.Logging;
+namespace Test.UOL.Web.Tests.NAO_ALTERAR;
 
 [TestFixture]
 

@@ -19,4 +19,13 @@ public interface ICartService
     /// The <seealso cref="Cart"/> if found; otherwise, null.
     /// </returns>
     Cart? GetCartById(Guid id);
+    /// <summary>
+    /// Updates the specified <seealso cref="Cart"/>.
+    /// Does not update cart items.
+    /// </summary>
+    /// <param name="cart">The cart to update.</param>
+    /// <returns>
+    /// The updated <seealso cref="Cart"/>.
+    /// </returns>
+    Cart UpdateCart(Cart cart);
 }
