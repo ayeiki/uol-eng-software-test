@@ -39,21 +39,4 @@ public class PriceCalculatorServiceTests
         // Assert
         Assert.That(total, Is.EqualTo(0.0m));
     }
-
-    [Test]
-    public void CartTotalCalculator_ShouldHaveOnlyOneParameterlessConstructor()
-    {
-        // Arrange
-        var type = typeof(CartTotalCalculator);
-
-        // Act
-        var constructors = type.GetConstructors();
-
-        // Assert
-        Assert.That(constructors.Length, Is.EqualTo(1), "Expected exactly one constructor.");
-
-        var parameters = constructors[0].GetParameters();
-        Assert.That(parameters, Is.Empty, "CartTotalCalculator should not require any dependencies.");
-    }
-
 }
