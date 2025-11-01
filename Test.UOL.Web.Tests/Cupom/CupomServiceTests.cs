@@ -39,21 +39,34 @@ namespace Test.UOL.Web.Tests.Cupom
         /// <summary>
         /// Testa a aplicação de um cupom válido ao carrinho.
         /// </summary>
-        [Test]
+       [Test]
         public void ApplyCupomToCart_ShouldApplyValidCupom()
         {
-            // Arrange
-            string cupomCode = "VALIDO10";
-            var cupom = new CupomItem { key = cupomCode, type = "percent", value = "10" };
-            // Quando GetCupom for chamado com "VALIDO10", retorne o cupom acima
-            _cupomProviderMock.Setup(p => p.GetCupom(cupomCode)).Returns(cupom);
-            _calculatorMock.Setup(c => c.CalculateTotal(_cart)).Returns(0m); // Retorna qualquer valor, apenas para o mock funcionar
+            // --- ARRANGE ---
+            
+            // 1. Adicione itens ao carrinho para que haja um total base
+            decimal baseTotal = 200m;
+            decimal totalComDesconto = 180m; // 10% de 200 = 20 de desconto
+            _cart.CartItems.Add(new CartItem(new Product(Guid.NewGuid(), "Produto", baseTotal), 1));            
 
-            // Act
+            string cupomCode = "PROMO10";
+            var cupom = new CupomItem { key = cupomCode, type = "Percentage", value = "10" };
+
+            _cupomProviderMock.Setup(p => p.GetCupom(cupomCode)).Returns(cupom);
+
+            // 2. Faça o mock do calculador retornar o NOVO total com desconto
+            _calculatorMock.Setup(c => c.CalculateTotal(_cart)).Returns(totalComDesconto);
+
+            // --- ACT ---
             _cupomService.ApplyCupomToCart(_cartId, cupomCode);
-            // Assert
+
+            // --- ASSERT ---
+            // 1. Verifica se o código foi salvo
             Assert.That(_cart.CupomCode, Is.Not.Null);
             Assert.That(_cart.CupomCode, Is.EqualTo(cupomCode));
+            
+            // 2. CORREÇÃO: Verifica se o TotalAmount foi recalculado
+            Assert.That(_cart.TotalAmount, Is.EqualTo(totalComDesconto));
         }
 
         /// <summary>

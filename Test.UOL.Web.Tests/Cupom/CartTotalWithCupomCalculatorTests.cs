@@ -99,6 +99,39 @@ namespace Test.UOL.Web.Tests.Cupom
             Assert.That(finalTotal, Is.EqualTo(0m)); // 30 (base) - 30 (desconto) = 0
         }
 
-        
+
+        /// <summary>
+        /// Testa o retorno do total do carrinho quando o cupom não é encontrado.
+        /// </summary>
+        [Test]
+        public void CalculateTotal_ShouldReturnBaseTotalAndClearCupom_WhenCupomIsNotFound()
+        {
+            // --- ARRANGE ---
+            // 1. Crie um carrinho que ACHA que tem um cupom
+            string cupomCode = "EXPIROU";
+            var cart = new Cart { CupomCode = cupomCode };
+
+            // 2. Defina o total base (dos itens)
+            decimal baseTotal = 150m;
+            _baseCalculatorMock.Setup(c => c.CalculateTotal(cart)).Returns(baseTotal);
+
+            // 3. Configure o Provider para NÃO ENCONTRAR o cupom
+            _cupomProviderMock.Setup(p => p.GetCupom(cupomCode)).Returns((CupomItem)null); // Retorna null
+
+            // --- ACT ---
+            // O calculador deve:
+            // 1. Tentar buscar "EXPIROU"
+            // 2. Receber null
+            // 3. Limpar o cupom do carrinho
+            // 4. Retornar o total base (150m)
+            var finalTotal = _calculator.CalculateTotal(cart);
+
+            // --- ASSERT ---    
+            // O total final é o total base, sem desconto
+            Assert.That(finalTotal, Is.EqualTo(150m));
+
+            // O cupom foi removido do carrinho
+            Assert.That(cart.CupomCode, Is.Null);
+        }
     }
 }
