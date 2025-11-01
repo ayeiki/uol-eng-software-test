@@ -39,7 +39,7 @@ namespace Test.UOL.Web.Tests.Cupom
             var cart = new Cart();
             decimal baseTotal = 150m;
 
-            // Instanciamos o Cart. CupomCode já é null por padrão.
+            // Novo Cart. CupomCode já é null por padrão.
             // Quando CalculateTotal for chamado, finja que o total dos itens é 150
             _baseCalculatorMock.Setup(c => c.CalculateTotal(cart)).Returns(baseTotal);
 

@@ -22,17 +22,14 @@ namespace Test.UOL.Web.Tests.Cupom
         [SetUp]
         public void Setup()
         {
-            // Criamos os (Mocks)
             _cartStoreMock = new Mock<ICartStore>();
             _cupomProviderMock = new Mock<ICupomProvider>();
             _calculatorMock = new Mock<ICartTotalCalculator>();
 
-            // Instanciamos nosso serviço, injetando os mocks
             _cupomService = new CupomService(_cartStoreMock.Object, _cupomProviderMock.Object, _calculatorMock.Object);
 
             _cartId = Guid.NewGuid();
             _cart = new Cart { Id = _cartId, CartItems = new List<CartItem>() };
-            // Quando GetCartById for chamado com _cartId, retorne o _cart
             _cartStoreMock.Setup(s => s.GetCartById(_cartId)).Returns(_cart);
         }
 
@@ -44,7 +41,7 @@ namespace Test.UOL.Web.Tests.Cupom
         {
             // --- ARRANGE ---
             
-            // 1. Adicione itens ao carrinho para que haja um total base
+            // Adicione itens ao carrinho para que haja um total base
             decimal baseTotal = 200m;
             decimal totalComDesconto = 180m; // 10% de 200 = 20 de desconto
             _cart.CartItems.Add(new CartItem(new Product(Guid.NewGuid(), "Produto", baseTotal), 1));            
@@ -61,11 +58,11 @@ namespace Test.UOL.Web.Tests.Cupom
             _cupomService.ApplyCupomToCart(_cartId, cupomCode);
 
             // --- ASSERT ---
-            // 1. Verifica se o código foi salvo
+            //  Verifica se o código foi salvo
             Assert.That(_cart.CupomCode, Is.Not.Null);
             Assert.That(_cart.CupomCode, Is.EqualTo(cupomCode));
             
-            // 2. CORREÇÃO: Verifica se o TotalAmount foi recalculado
+            // Verifica se o TotalAmount foi recalculado
             Assert.That(_cart.TotalAmount, Is.EqualTo(totalComDesconto));
         }
 
@@ -90,7 +87,7 @@ namespace Test.UOL.Web.Tests.Cupom
             _cupomProviderMock.Setup(p => p.GetCupom(newCupomCode)).Returns(newCupom);
 
             // Act & Assert
-            // Verificamos se uma exceção do tipo CupomException é lançada
+            // Verifica se uma exceção do tipo CupomException é lançada
             var ex = Assert.Throws<CupomException>(() => _cupomService.ApplyCupomToCart(_cartId, newCupomCode));
             // Verificamos se a mensagem de erro está correta
             Assert.That(ex.Message, Is.EqualTo(ErrorMessages.CupomAlreadyApplied));

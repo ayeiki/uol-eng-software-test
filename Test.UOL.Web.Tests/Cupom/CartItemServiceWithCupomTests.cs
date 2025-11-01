@@ -42,7 +42,7 @@ namespace Test.UOL.Web.Tests.Cupom
         [Test]
         public void PutItemInCart_ShouldUpdateTotalWithDiscount_WhenCupomIsApplied()
         {
-            // --- ARRANGE (Preparar) ---
+            // --- ARRANGE ---
 
             // 1. Criar o carrinho com um cupom JÁ aplicado
             var cartId = Guid.NewGuid();

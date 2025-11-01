@@ -71,11 +71,22 @@ group.MapGet("{id:guid}", ([FromRoute] Guid id, [FromServices] ICartService cart
 #region Cart Items
 var itemGroup = app.MapGroup("cart/{id:guid}/items").WithTags("CartItem").WithOpenApi();
 
-itemGroup.MapPost("", ([FromRoute] Guid id, [FromBody] CartItem request, [FromServices] ICartItemService cartItemService) =>
+itemGroup.MapPost("", (
+    [FromRoute] Guid id, 
+    [FromBody] CartItemRequest request, 
+    [FromServices] ICartItemService cartItemService,
+    [FromServices] ICartStore cartStore) => 
 {
     try
     {
-        cartItemService.PutItemInCart(id, request);
+        var product = new Product(
+            request.Product.Id,
+            request.Product.Name,
+            request.Product.Price
+        );
+        var cartItem = new CartItem(product, request.Quantity);
+        cartItemService.PutItemInCart(id, cartItem);
+        // cartItemService.PutItemInCart(id, request);        
         return Results.Ok();
     }
     catch (ArgumentException ex)
@@ -177,3 +188,5 @@ cupomGroup.MapDelete("", (
 app.Run();
 
 public sealed record CupomRequest(string Code);
+public record ProductRequest(Guid Id, string Name, decimal Price);
+public record CartItemRequest(ProductRequest Product, int Quantity);

@@ -1,11 +1,13 @@
 using System.Text.Json;
 using Test.UOL.Web.Entities;
 using Test.UOL.Web.Interfaces;
+using System.Text.Json.Serialization;
 
 namespace Test.UOL.Web.Helpers;
 
-file sealed class CupomRoot
+file class CupomRoot
 {
+    [JsonPropertyName("coupons")]
     public List<CupomItem> cupons { get; set; } = new();
 }
 
@@ -39,8 +41,8 @@ public sealed class JsonCupomProvider : ICupomProvider
 
             var json = File.ReadAllText(_path);
             var root = JsonSerializer.Deserialize<CupomRoot>(json,
-                new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
-                ?? new CupomRoot();
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true })
+            ?? new CupomRoot();
 
             var dict = new Dictionary<string, CupomItem>(StringComparer.OrdinalIgnoreCase);
             foreach (var it in root.cupons)
