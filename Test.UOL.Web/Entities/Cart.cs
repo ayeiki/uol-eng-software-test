@@ -10,7 +10,7 @@ public class Cart
     public string? Customer { get; set; }
     public string? CustomerAddress { get; set; }
 
-    public string? CupomCode { get; private set; }
+    public string? CupomCode { get; set; }
     public Cart()
     {
         CartItems = new List<CartItem>();
