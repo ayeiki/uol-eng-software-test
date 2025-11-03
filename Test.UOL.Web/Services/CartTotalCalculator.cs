@@ -9,6 +9,6 @@ public class CartTotalCalculator() : ICartTotalCalculator
     {
         var discountAmountInCart = cart.DiscountAmountInCart ?? 0;
         var total = (cart.CartItems.Sum(item => item.Product.Price * item.Quantity)) - discountAmountInCart;
-        return total;
+        return Math.Max(total, 0);
     }
 }
