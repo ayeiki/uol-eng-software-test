@@ -14,7 +14,7 @@ public class CartStoreFakerMemory : ICartStore
     public Cart AddCart(Cart cart)
     {
         _carts.Add(cart);
-        return cart; // ✅ Isso precisa existir!
+        return cart;
     }
 
     public Cart GetCartById(Guid id) => _carts.FirstOrDefault(c => c.Id == id);

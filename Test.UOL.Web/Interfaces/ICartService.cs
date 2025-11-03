@@ -30,5 +30,6 @@ public interface ICartService
     /// </returns>
     Cart UpdateCart(Cart cart);
 
-    Cart ApplyDiscount(DiscountAmountInCartRequest request);
+    Cart ApplyCouponDiscount(CouponDiscountInCartRequest request);
+    void RemoveCouponDiscount(Guid cartId);
 }

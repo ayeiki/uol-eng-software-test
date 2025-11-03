@@ -41,7 +41,8 @@ public class CartService : ICartService
         return cart;
     }
 
-    public Cart ApplyDiscount(DiscountAmountInCartRequest request)
+    #region Coupon Discount
+    public Cart ApplyCouponDiscount(CouponDiscountInCartRequest request)
     {
         var cart = ValidateCart(request.CartId);
         if (cart.TotalAmount <= 0)
@@ -56,7 +57,15 @@ public class CartService : ICartService
         return cart;
     }
 
-    private (CouponDiscount coupon, decimal discount) ValidateCouponDiscount(DiscountAmountInCartRequest request, Cart cart)
+    public void RemoveCouponDiscount(Guid cartId)
+    {
+        var cart = ValidateCart(cartId);
+        cart.CouponDiscountApplied = null;
+        cart.DiscountAmountInCart = null;
+        cart.TotalAmount = _cartTotalCalculator.CalculateTotal(cart);
+    }
+
+    private (CouponDiscount coupon, decimal discount) ValidateCouponDiscount(CouponDiscountInCartRequest request, Cart cart)
     {
         if (cart.CouponDiscountApplied is not null)
             throw new ArgumentException("Já existe um cupom aplicado.");
@@ -93,5 +102,6 @@ public class CartService : ICartService
 
         return cart;
     }
+    #endregion
 }
 

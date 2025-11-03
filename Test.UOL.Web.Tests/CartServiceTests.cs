@@ -83,13 +83,13 @@ namespace Test.UOL.Web.Tests
             var originalTotal = cart.TotalAmount;
 
             // === 3. Aplicar cupom fixo ===
-            var request = new DiscountAmountInCartRequest
+            var request = new CouponDiscountInCartRequest
             {
                 CartId = cart.Id,
                 CouponDiscountKey = "FLAT50"
             };
 
-            var updatedCart = _cartService.ApplyDiscount(request);
+            var updatedCart = _cartService.ApplyCouponDiscount(request);
             var expectedDiscount = 50m;
             var expectedTotal = originalTotal - 50m;
 
@@ -112,13 +112,13 @@ namespace Test.UOL.Web.Tests
 
             var originalTotal = cart.TotalAmount;
 
-            var request = new DiscountAmountInCartRequest
+            var request = new CouponDiscountInCartRequest
             {
                 CartId = cart.Id,
                 CouponDiscountKey = "PROMO20"
             };
 
-            var updatedCart = _cartService.ApplyDiscount(request);
+            var updatedCart = _cartService.ApplyCouponDiscount(request);
             var expectedDiscount = originalTotal * 0.20m;
             var expectedTotal = originalTotal - expectedDiscount;
 
@@ -141,13 +141,13 @@ namespace Test.UOL.Web.Tests
 
             var originalTotal = cart.TotalAmount;
 
-            var request = new DiscountAmountInCartRequest
+            var request = new CouponDiscountInCartRequest
             {
                 CartId = cart.Id,
                 CouponDiscountKey = "INVALIDO"
             };
 
-            var ex = Assert.Throws<ArgumentException>(() => _cartService.ApplyDiscount(request));
+            var ex = Assert.Throws<ArgumentException>(() => _cartService.ApplyCouponDiscount(request));
             Assert.That(ex.Message, Is.EqualTo("Cupom inválido."));
         }
 
@@ -158,13 +158,13 @@ namespace Test.UOL.Web.Tests
             Assert.That(cart, Is.Not.Null);
             Assert.That(cart.CartItems.Count, Is.EqualTo(0));
 
-            var request = new DiscountAmountInCartRequest
+            var request = new CouponDiscountInCartRequest
             {
                 CartId = cart.Id,
                 CouponDiscountKey = "FLAT50"
             };
 
-            var ex = Assert.Throws<ArgumentException>(() => _cartService.ApplyDiscount(request));
+            var ex = Assert.Throws<ArgumentException>(() => _cartService.ApplyCouponDiscount(request));
             Assert.That(ex.Message, Is.EqualTo("O seu carrinho está vazio."));
         }
 
@@ -178,20 +178,20 @@ namespace Test.UOL.Web.Tests
             cart.TotalAmount = new CartTotalCalculator().CalculateTotal(cart);
             Assert.That(cart.TotalAmount, Is.GreaterThan(0));
 
-            var firstRequest = new DiscountAmountInCartRequest
+            var firstRequest = new CouponDiscountInCartRequest
             {
                 CartId = cart.Id,
                 CouponDiscountKey = "FLAT50"
             };
-            var updatedCart = _cartService.ApplyDiscount(firstRequest);
+            var updatedCart = _cartService.ApplyCouponDiscount(firstRequest);
 
-            var secondRequest = new DiscountAmountInCartRequest
+            var secondRequest = new CouponDiscountInCartRequest
             {
                 CartId = cart.Id,
                 CouponDiscountKey = "PERCENT20"
             };
 
-            var ex = Assert.Throws<ArgumentException>(() => _cartService.ApplyDiscount(secondRequest));
+            var ex = Assert.Throws<ArgumentException>(() => _cartService.ApplyCouponDiscount(secondRequest));
             Assert.That(ex.Message, Is.EqualTo("Já existe um cupom aplicado."));
         }
     }

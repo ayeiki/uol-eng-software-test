@@ -53,11 +53,11 @@ group.MapGet("{id:guid}", ([FromRoute] Guid id, [FromServices] ICartService cart
 .Produces<Cart>(StatusCodes.Status200OK)  
 .Produces(StatusCodes.Status400BadRequest);
 
-group.MapPost("apply-discount", ([FromBody] DiscountAmountInCartRequest request, [FromServices] ICartService cartService) =>
+group.MapPost("apply-coupon-discount", ([FromBody] CouponDiscountInCartRequest request, [FromServices] ICartService cartService) =>
 {
     try
     {
-        var result = cartService.ApplyDiscount(request);
+        var result = cartService.ApplyCouponDiscount(request);
         return Results.Ok(result);
     }
     catch (ArgumentException ex)
@@ -65,8 +65,24 @@ group.MapPost("apply-discount", ([FromBody] DiscountAmountInCartRequest request,
         return Results.BadRequest(new { Error = ex.Message });
     }
 })
-.WithName("ApplyDiscountAmountInCart")
+.WithName("ApplyCouponDiscount")
 .Produces<Cart>(StatusCodes.Status201Created)
+.Produces(StatusCodes.Status400BadRequest);
+
+group.MapDelete("remove-coupon-discount/{cartId:guid}", ([FromRoute] Guid cartId, [FromServices] ICartService cartService) =>
+{
+    try
+    {
+        cartService.RemoveCouponDiscount(cartId);
+        return Results.Ok();
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("RemoveCouponDiscount")
+.Produces(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status400BadRequest);
 
 
