@@ -7,7 +7,8 @@ public class CartTotalCalculator() : ICartTotalCalculator
 {
     public decimal CalculateTotal(Cart cart)
     {
-        var total = cart.CartItems.Sum(item => item.Product.Price * item.Quantity);
+        var discountAmountInCart = cart.DiscountAmountInCart ?? 0;
+        var total = (cart.CartItems.Sum(item => item.Product.Price * item.Quantity)) - discountAmountInCart;
         return total;
     }
 }

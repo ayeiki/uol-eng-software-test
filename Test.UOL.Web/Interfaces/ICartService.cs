@@ -1,4 +1,5 @@
-﻿using Test.UOL.Web.Entities;
+﻿using Test.UOL.Web.Dtos;
+using Test.UOL.Web.Entities;
 
 namespace Test.UOL.Web.Interfaces;
 
@@ -28,4 +29,6 @@ public interface ICartService
     /// The updated <seealso cref="Cart"/>.
     /// </returns>
     Cart UpdateCart(Cart cart);
+
+    Cart ApplyDiscount(DiscountAmountInCartRequest request);
 }

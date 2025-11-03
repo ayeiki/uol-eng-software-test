@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using Test.UOL.Web.Dtos;
 using Test.UOL.Web.Entities;
 using Test.UOL.Web.Interfaces;
 using Test.UOL.Web.Services;
@@ -13,7 +14,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ICartStore, CartStore>();
 builder.Services.AddSingleton<ICartService, CartService>();
 builder.Services.AddSingleton<ICartTotalCalculator, CartTotalCalculator>();
-
+builder.Services.AddSingleton<ICartItemService, CartItemService>();
 
 var app = builder.Build();
 
@@ -52,6 +53,21 @@ group.MapGet("{id:guid}", ([FromRoute] Guid id, [FromServices] ICartService cart
 .Produces<Cart>(StatusCodes.Status200OK)  
 .Produces(StatusCodes.Status400BadRequest);
 
+group.MapPost("apply-discount", ([FromBody] DiscountAmountInCartRequest request, [FromServices] ICartService cartService) =>
+{
+    try
+    {
+        var result = cartService.ApplyDiscount(request);
+        return Results.Ok(result);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("ApplyDiscountAmountInCart")
+.Produces<Cart>(StatusCodes.Status201Created)
+.Produces(StatusCodes.Status400BadRequest);
 
 
 

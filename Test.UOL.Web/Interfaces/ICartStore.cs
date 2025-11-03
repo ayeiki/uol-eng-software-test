@@ -35,4 +35,22 @@ public interface ICartStore
     /// True if the cart was deleted; otherwise, false.
     /// </returns>
     bool DeleteCart(Guid id);
+
+
+    /// <summary>
+    /// Gets all CouponDiscounts.
+    /// </summary>
+    /// <returns>
+    /// A collection of all <seealso cref="CouponDiscount"/>s.
+    /// </returns>
+    IEnumerable<CouponDiscount> GetCouponDiscounts();
+
+    /// <summary>
+    /// Gets a <seealso cref="CouponDiscount"/> by its key.
+    /// </summary>
+    /// <param name="id">The key of the Coupon Discount.</param>
+    /// <returns>
+    /// The <seealso cref="CouponDiscount"/> if found; otherwise, null.
+    /// </returns>
+    CouponDiscount? GetCouponDiscountByKey(string key);
 }
