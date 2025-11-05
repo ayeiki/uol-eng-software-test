@@ -48,10 +48,7 @@ public class CartService : ICartService
         if (cart.TotalAmount <= 0)
             return cart;
 
-        var result = ValidateCouponDiscount(request, cart);
-
-        cart.CouponDiscountApplied = result.coupon;
-        cart.DiscountAmountInCart = result.discount;
+        cart.CouponDiscountApplied = ValidateCouponDiscount(request, cart);
         cart.TotalAmount = _cartTotalCalculator.CalculateTotal(cart);
 
         return cart;
@@ -65,7 +62,7 @@ public class CartService : ICartService
         cart.TotalAmount = _cartTotalCalculator.CalculateTotal(cart);
     }
 
-    private (CouponDiscount coupon, decimal discount) ValidateCouponDiscount(CouponDiscountInCartRequest request, Cart cart)
+    private CouponDiscount ValidateCouponDiscount(CouponDiscountInCartRequest request, Cart cart)
     {
         if (cart.CouponDiscountApplied is not null)
             throw new ArgumentException("Já existe um cupom aplicado.");
@@ -73,14 +70,7 @@ public class CartService : ICartService
         var coupon = _cartStore.GetCouponDiscountByKey(request.CouponDiscountKey)
             ?? throw new ArgumentException("Cupom inválido.");
 
-        var discount = coupon.Type switch
-        {
-            Entities.Enums.CouponDiscountType.Fixed => coupon.Value,
-            Entities.Enums.CouponDiscountType.Percentage => cart.TotalAmount * (coupon.Value / 100m),
-            _ => 0
-        };
-
-        return(coupon, discount);
+        return coupon;
     }
 
     private Cart ValidateCart(Guid cartId)
