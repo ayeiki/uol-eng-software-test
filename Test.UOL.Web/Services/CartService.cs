@@ -1,5 +1,6 @@
-﻿using Test.UOL.Web.Interfaces;
+﻿using Test.UOL.Web.Dtos;
 using Test.UOL.Web.Entities;
+using Test.UOL.Web.Interfaces;
 
 namespace Test.UOL.Web.Services;
 
@@ -26,27 +27,71 @@ public class CartService : ICartService
 
     public Cart GetCartById(Guid id)
     {
-        var cart = _cartStore.GetCartById(id);
-        if (cart == null)
-        {
-            throw new ArgumentException("Cart not found", nameof(id));
-        }
+        Cart? cart = CheckExistingCart(id);
         return cart;
     }
 
     public Cart UpdateCart(Cart cart)
     {
-        var existingCart = _cartStore.GetCartById(cart.Id);
-        if (existingCart == null)
-        {
-            throw new ArgumentException("Cart not found", nameof(cart.Id));
-        }
-
+        var existingCart = CheckExistingCart(cart.Id);
         existingCart.Customer = cart.Customer;
         existingCart.CustomerAddress = cart.CustomerAddress;
 
         cart.TotalAmount = _cartTotalCalculator.CalculateTotal(cart);
         return cart;
     }
+
+    #region Coupon Discount
+    public Cart ApplyCouponDiscount(CouponDiscountInCartRequest request)
+    {
+        var cart = ValidateCart(request.CartId);
+        if (cart.TotalAmount <= 0)
+            return cart;
+
+        cart.CouponDiscountApplied = ValidateCouponDiscount(request, cart);
+        cart.TotalAmount = _cartTotalCalculator.CalculateTotal(cart);
+
+        return cart;
+    }
+
+    public void RemoveCouponDiscount(Guid cartId)
+    {
+        var cart = ValidateCart(cartId);
+        cart.CouponDiscountApplied = null;
+        cart.DiscountAmountInCart = null;
+        cart.TotalAmount = _cartTotalCalculator.CalculateTotal(cart);
+    }
+
+    private CouponDiscount ValidateCouponDiscount(CouponDiscountInCartRequest request, Cart cart)
+    {
+        if (cart.CouponDiscountApplied is not null)
+            throw new ArgumentException("Já existe um cupom aplicado.");
+
+        var coupon = _cartStore.GetCouponDiscountByKey(request.CouponDiscountKey)
+            ?? throw new ArgumentException("Cupom inválido.");
+
+        return coupon;
+    }
+
+    private Cart ValidateCart(Guid cartId)
+    {
+        var cart = CheckExistingCart(cartId);
+        if (cart.CartItems is null || cart.CartItems.Count == 0)
+            throw new ArgumentException("O seu carrinho está vazio.");
+
+        return cart;
+    }
+
+    private Cart CheckExistingCart(Guid id)
+    {
+        var cart = _cartStore.GetCartById(id);
+        if (cart == null)
+        {
+            throw new ArgumentException("Cart not found", nameof(id));
+        }
+
+        return cart;
+    }
+    #endregion
 }
 

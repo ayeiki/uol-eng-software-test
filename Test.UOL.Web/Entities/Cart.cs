@@ -7,9 +7,12 @@ public class Cart
     public decimal TotalAmount { get; set; }
     public string? Customer { get; set; }
     public string? CustomerAddress { get; set; }
+
+    public decimal? DiscountAmountInCart { get; set; }
+    public CouponDiscount? CouponDiscountApplied { get; set; }
+
     public Cart()
     {
         CartItems = new List<CartItem>();
     }
 }
-
