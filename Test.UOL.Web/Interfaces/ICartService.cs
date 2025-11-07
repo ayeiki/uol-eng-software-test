@@ -28,4 +28,16 @@ public interface ICartService
     /// The updated <seealso cref="Cart"/>.
     /// </returns>
     Cart UpdateCart(Cart cart);
+
+    /// <summary>
+    /// Updates the specified <seealso cref="Cart"/> total value with discount coupon.
+    /// Does not update cart items.
+    /// </summary>
+    /// <param name="cartId">The cart ID to update.</param>
+    /// <param name="coupon">The coupon to apply to the cart.</param>
+    /// <returns>
+    /// The updated <seealso cref="Cart"/>.
+    /// </returns>
+    Cart ApplyCoupon(Guid cartId, string couponKey);
+
 }
