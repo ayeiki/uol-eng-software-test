@@ -11,7 +11,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddSingleton<ICartStore, CartStore>();
+builder.Services.AddSingleton<ICouponStore, CouponStore>();
 builder.Services.AddSingleton<ICartService, CartService>();
+builder.Services.AddSingleton<ICartItemService, CartItemService>();
 builder.Services.AddSingleton<ICartTotalCalculator, CartTotalCalculator>();
 
 
@@ -51,6 +53,23 @@ group.MapGet("{id:guid}", ([FromRoute] Guid id, [FromServices] ICartService cart
 .WithName("GetCart")
 .Produces<Cart>(StatusCodes.Status200OK)  
 .Produces(StatusCodes.Status400BadRequest);
+
+group.MapPost("{cartId:Guid}/applycoupon/{couponKey}", ([FromRoute] Guid cartId, [FromRoute] string couponKey, [FromServices] ICartService cartService) =>
+{
+    try
+    {
+        var cart = cartService.ApplyCoupon(cartId, couponKey);
+        return Results.CreatedAtRoute("GetCart", new { id = cart.Id }, cart);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("ApplyCoupon")
+.Produces<Cart>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status400BadRequest);
+
 
 
 
