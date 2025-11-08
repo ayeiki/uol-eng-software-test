@@ -1,5 +1,5 @@
-using Microsoft.AspNetCore.Cors.Infrastructure;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using Test.UOL.Web.Entities;
 using Test.UOL.Web.Interfaces;
 
@@ -15,14 +15,11 @@ public class CartCouponService : ICartCouponService
     public CartCouponService(ICartTotalCalculator cartTotalCalculator, ICartService cartService)
     {
         _jsonPath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "files", "cupom.json");
-        _coupons = LoadCoupons();
+
+        // Load coupons from JSON file only once
+        _coupons = _coupons != null ? _coupons : LoadCoupons();
         _cartTotalCalculator = cartTotalCalculator;
         _cartService = cartService;
-    }
-
-    private class CouponWrapper
-    {
-        public List<Coupon> Coupons { get; set; } = new();
     }
 
     //Loads coupons from the JSON file
@@ -35,10 +32,24 @@ public class CartCouponService : ICartCouponService
 
         var options = new JsonSerializerOptions
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            Converters =
+            {
+                new JsonStringEnumConverter(JsonNamingPolicy.CamelCase)
+            }
         };
-        var wrapper = JsonSerializer.Deserialize<CouponWrapper>(jsonString, options);
-        return wrapper?.Coupons ?? new List<Coupon>();
+
+        using var jsonCoupons = JsonDocument.Parse(jsonString);
+
+        var root = jsonCoupons.RootElement;
+               
+        if (root.TryGetProperty("coupons", out var couponsElement))
+        {
+            var couponList = JsonSerializer.Deserialize<List<Coupon>>(couponsElement.GetRawText(), options);
+            return couponList ?? new List<Coupon>();
+        }
+
+        return new List<Coupon>();
     }
 
     //Add coupon to cart and recalculates the total amount if coupon is valid
@@ -64,7 +75,7 @@ public class CartCouponService : ICartCouponService
         if (coupon == null)
             throw new ArgumentException("Coupon not found");
 
-        if (!coupon.Type.Equals("Fixed") && !coupon.Type.Equals("Percentage"))
+        if (coupon.Type != CouponType.Percentage && coupon.Type != CouponType.Fixed)
             throw new ArgumentException("Coupon type not supported");
 
         if (!decimal.TryParse(coupon.Value, out decimal value) || value <= 0)

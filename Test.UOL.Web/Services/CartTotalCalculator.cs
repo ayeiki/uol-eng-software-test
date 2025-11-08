@@ -22,7 +22,7 @@ public class CartTotalCalculator() : ICartTotalCalculator
     {
         var discount = 0m;
 
-        if (coupon.Type.Equals("Percentage", StringComparison.OrdinalIgnoreCase))
+        if (coupon.Type == CouponType.Percentage)
         {
             discount = decimal.Parse(coupon.Value) / 100;
             total = Math.Max(0, total * (1 - discount));
