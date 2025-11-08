@@ -9,22 +9,28 @@ public class CartTotalCalculator() : ICartTotalCalculator
     {
         var total = cart.CartItems.Sum(item => item.Product.Price * item.Quantity);
 
-        if (cart.Coupon?.Key != null)
+        // Apply coupon discount if exists
+        // Implemented on CalculateTotal method to ensure correct total calculation on cart updates
+        if (cart.Coupon != null)
+            total = ApplyCouponDiscount(total, cart.Coupon);
+
+        return total;
+    }
+
+    //Applies the coupon discount based on its type
+    private decimal ApplyCouponDiscount(decimal total, Coupon coupon)
+    {
+        var discount = 0m;
+
+        if (coupon.Type.Equals("Percentage", StringComparison.OrdinalIgnoreCase))
         {
-            var discount = 0m;
-
-            if (cart.Coupon.Type.Equals("Percentage", StringComparison.OrdinalIgnoreCase))
-            {
-                discount = decimal.Parse(cart.Coupon.Value) / 100;
-                total = Math.Max(0, total * (1 - discount));
-                return total;
-            }
-
-            discount = decimal.Parse(cart.Coupon.Value);
-            total = Math.Max(0, total - discount);
+            discount = decimal.Parse(coupon.Value) / 100;
+            total = Math.Max(0, total * (1 - discount));
             return total;
         }
 
+        discount = decimal.Parse(coupon.Value);
+        total = Math.Max(0, total - discount);
         return total;
     }
 }

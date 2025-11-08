@@ -11,6 +11,5 @@ public class Cart
     public Cart()
     {
         CartItems = new List<CartItem>();
-        Coupon = new Coupon();
     }
 }

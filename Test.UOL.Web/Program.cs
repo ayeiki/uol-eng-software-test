@@ -110,10 +110,7 @@ couponGroup.MapPost("{couponKey}", ([FromRoute] Guid id, [FromRoute] string coup
 {
     try
     {
-        var cart = cartService.GetCartById(id);
-
-        var cartCoupon = couponCalculator.ApplyCouponDiscount(cart, couponKey);
-
+        var cartCoupon = couponCalculator.AddCouponToCart(id, couponKey);
         return Results.Ok(cartCoupon);
     }
     catch (ArgumentException ex)
