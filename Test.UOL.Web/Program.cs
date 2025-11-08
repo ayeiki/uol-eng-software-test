@@ -13,7 +13,8 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSingleton<ICartStore, CartStore>();
 builder.Services.AddSingleton<ICartService, CartService>();
 builder.Services.AddSingleton<ICartTotalCalculator, CartTotalCalculator>();
-
+builder.Services.AddSingleton<ICartCouponService, CartCouponService>();
+builder.Services.AddSingleton<ICartItemService, CartItemService>();
 
 var app = builder.Build();
 
@@ -40,8 +41,8 @@ group.MapPost("", ([FromServices] ICartService cartService) =>
     }
 })
 .WithName("CreateCart")
-.Produces<Cart>(StatusCodes.Status201Created)  
-.Produces(StatusCodes.Status400BadRequest);    
+.Produces<Cart>(StatusCodes.Status201Created)
+.Produces(StatusCodes.Status400BadRequest);
 
 group.MapGet("{id:guid}", ([FromRoute] Guid id, [FromServices] ICartService cartService) =>
 {
@@ -49,7 +50,7 @@ group.MapGet("{id:guid}", ([FromRoute] Guid id, [FromServices] ICartService cart
     return Results.Ok(cart);
 })
 .WithName("GetCart")
-.Produces<Cart>(StatusCodes.Status200OK)  
+.Produces<Cart>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status400BadRequest);
 
 
@@ -71,7 +72,7 @@ itemGroup.MapPost("", ([FromRoute] Guid id, [FromBody] CartItem request, [FromSe
     }
 })
 .WithName("AddCartItem")
-.Produces(StatusCodes.Status200OK)  
+.Produces(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status400BadRequest);
 
 itemGroup.MapDelete("{idItem:guid}", ([FromRoute] Guid id, [FromRoute] Guid idItem, [FromServices] ICartItemService cartItemService) =>
@@ -87,7 +88,7 @@ itemGroup.MapDelete("{idItem:guid}", ([FromRoute] Guid id, [FromRoute] Guid idIt
     }
 })
 .WithName("ChangeCartItem")
-.Produces(StatusCodes.Status200OK)  
+.Produces(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status400BadRequest);
 
 
@@ -97,8 +98,31 @@ itemGroup.MapGet("", ([FromRoute] Guid id, [FromServices] ICartItemService cartI
     return Results.Ok(cartItems);
 })
 .WithName("GetCartItems")
-.Produces<IEnumerable<CartItem>>(StatusCodes.Status200OK)  
+.Produces<IEnumerable<CartItem>>(StatusCodes.Status200OK)
 .Produces(StatusCodes.Status400BadRequest);
 
+
+var couponGroup = app.MapGroup("cart/{id:guid}/coupon").WithTags("CartCoupon").WithOpenApi();
+
+couponGroup.MapPost("{couponKey}", ([FromRoute] Guid id, [FromRoute] string couponKey,
+    [FromServices] ICartService cartService,
+    [FromServices] ICartCouponService couponCalculator) =>
+{
+    try
+    {
+        var cart = cartService.GetCartById(id);
+
+        var cartCoupon = couponCalculator.ApplyCouponDiscount(cart, couponKey);
+
+        return Results.Ok(cartCoupon);
+    }
+    catch (ArgumentException ex)
+    {
+        return Results.BadRequest(new { Error = ex.Message });
+    }
+})
+.WithName("ApplyCoupon")
+.Produces<Cart>(StatusCodes.Status200OK)
+.Produces(StatusCodes.Status400BadRequest);
 
 app.Run();
